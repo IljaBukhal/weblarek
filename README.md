@@ -98,3 +98,149 @@ Presenter - презентер содержит основную логику п
 `emit<T extends object>(event: string, data?: T): void` - инициализация события. При вызове события в метод передается название события и объект с данными, который будет использован как аргумент для вызова обработчика.  
 `trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие с передачей в него данных из второго параметра.
 
+### Данные
+
+#### type TPayment
+
+`'card' | 'cash' | ''`  
+Литеральный тип, ограничивающий доступные значения для способа оплаты.
+
+#### interface IProduct
+
+Описывает товар.  
+Поля, описанные интерфейсом:  
+`id: string;` - id товара.  
+`description: string;` - описание товара.  
+`image: string;` - путь к изображению, иллюстрирующему товар.  
+`title: string;` - наименование товара.  
+`category: string;` - категория товара.  
+`price: number | null;` - стоимость товара. null если цена не предусмотренна.
+
+#### interface IBuyer
+
+Описывает данные покупателя.  
+Поля, описанные интерфейсом:  
+`payment: TPayment;` - способ оплаты.  
+`email: string;` - email пользователя.  
+`phone: string;` - номер телефона пользователя.
+`address: string;` - адрес пользователя.
+
+#### interface IOrder
+
+Описывает данные о заказе.  
+Поля, описанные интерфейсом:  
+`payment: TPayment;` - способ оплаты.  
+`email: string;` - email пользователя.  
+`phone: string;` - номер телефона пользователя.  
+`address: string;` - адрес пользователя.  
+`total: number;` - количество товаров в заказе.  
+`items: string[];` - массив id товаров в заказе.
+
+#### interface IProductList 
+
+Описывает объект, приходящий в ответ на get запрос в api.  
+Поля, описанные интерфейсом:  
+`total: number;` - количество товаров в заказе.  
+`items: IProduct[];` - массив объектов, содержащих данные о продуктах.
+
+#### interface ValidationResult
+
+Описывает объект, возвращаемый в результате валидации данных покупателя. Поля схожи с интерфейсом IBuyer, но является необязательными. В качестве значений для полей предполагаются ошибки валидации.  
+Поля, описанные интерфейсом:  
+`payment?: TPayment;` - способ оплаты.  
+`email?: string;` - email пользователя.  
+`phone?: string;` - номер телефона пользователя.
+`address?: string;` - адрес пользователя.
+
+### Модели данных
+
+#### class Catalog
+
+Хранение товаров, которые можно купить в приложении.  
+Поля класса:  
+`protected products: IProduct[];` - массив продуктов.  
+`protected selectedCard: IProduct | undefined;` - содержит объект описываемый интерфейсом IProduct, если товар не выбран - хранит undefined.  
+
+Конструктор класса:  
+```ts
+constructor(products: IProduct[]){
+  this.products = products;
+}
+```
+
+Методы класса:
+`saveProducts(products: IProduct[]): void` - сохраняет переданный в качестве аргумента массив товаров в каталог.  
+`getProducts(): IProduct[]` - возвращает массив товаров, находящихся в каталоге.  
+`getProductById(id: string): IProduct | undefined` - возвращает товар из каталога по его IP. Если товар не найден, возвращается undefined.  
+`saveProduct(product: IProduct): void` - сохраняет товар, переданный в качестве аргумента, для подробного отображения.  
+`getSelectedCard(): IProduct | undefined` - возвращает товар для подробного отображения. Если товар не был сохранен для подробного отображения, возвращается undefined.  
+
+#### class ShoppingCart
+
+Хранение товаров, которые пользователь выбрал для покупки.  
+Поля класса:
+`protected _selectedProducts: IProduct[];` - хранит массив товаров, выбранных пользователем для покупки.  
+
+Конструктор класса:  
+```ts
+constructor(products: IProduct[] = []) {
+  this._selectedProducts = products;
+}
+```
+
+Методы класса:  
+`getSelectedProducts(): IProduct[]` - возвращает массив выбранных пользователем для покупки товаров.  
+`addProductToCart(product: IProduct): void` - добавляет переданный в качестве аргумента товар в корзину.
+`removeProductFromCart(id: string): void` - удаляет из корзины товар по переданному в качестве аргумента ID.
+`clearCart(): void` - очищает корзину.
+`getTotalPrice(): number` - возвращает общую стоимость элементов корзины.
+`getNumberProductsInCart(): number` - возвращает количество товаров в корзине.
+`isProductInCart(id: string): boolean` - проверяет наличие товара в корзине.
+
+#### class Buyer
+
+Хранение данных покупателя, которые тот должен указать при оформлении заказа. Класс имплементирует интерфейс IBuyer.  
+Поля класса:  
+`public payment: TPayment = '';` - хранит способ оплаты товара.  
+`public email: string = '';` - хранит email покупателя.  
+`public phone: string = '';` - хранит номер телефона покупателя.  
+`public address: string = '';` - хранит адрес покупателя.  
+
+Конструктор класса:
+```ts
+constructor(buyer?: IBuyer) {
+  if (buyer) {
+      this.payment = buyer.payment;
+      this.email = buyer.email;
+      this.phone = buyer.phone;
+      this.address = buyer.address;
+  }
+}
+```
+
+Методы класса:
+`changePayment(newValue: TPayment): void` - меняет систему оплаты.  
+`changeEmail(newValue: string): void` - меняет email покупателя.  
+`changePhone(newValue: string): void` - меняет телефон покупателя.  
+`changeAddress(newValue: string): void` - меняет адрес покупателя.
+`getBuyerData(): IBuyer` - возвращает объект с данными пользователя.
+`clearBuyerData(): void` - очищает данные пользователя. Все поля данного класса принимает значение: ''.  
+`validateData(): ValidationResult` - возвращает объект с ошибками валидации. Объект может быть пустым, если ошибки в данных отсутствуют.
+
+### Слой коммуникации
+
+#### class Connection
+
+Отправляет get и pos запросы на API. При помощи композиции задействует функционал класса API:
+`public api: IApi;`
+
+Конструктор класса:
+```ts
+constructor(api: IApi) {
+  this.api = api
+}
+```
+
+Методы класса:
+`get(url: string): Promise<IProductList>` - Пользуясь методом get класса Api, посылает get запрос на сервер. Возвращает промис с товарами.  
+`post(uri: string, data: object, method?: ApiPostMethods | undefined)` - Пользуясь методом post класса Api, посылает post запрос на сервер.

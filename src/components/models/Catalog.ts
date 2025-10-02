@@ -1,0 +1,32 @@
+import { IProduct } from "../../types";
+
+export class Catalog {
+   protected products: IProduct[];
+   protected selectedCard: IProduct | undefined;
+
+   constructor(products: IProduct[]){
+      this.products = products;
+   }
+
+   saveProducts(products: IProduct[]): void {
+      this.products = products;
+   }
+
+   getProducts(): IProduct[] {
+      return this.products;
+   }
+
+   getProductById(id: string): IProduct | undefined {
+      return this.products.find((product) => {
+         return product.id === id;
+      });
+   }
+
+   saveProduct(product: IProduct): void {
+      this.selectedCard = product;
+   }
+
+   getSelectedCard(): IProduct | undefined {
+      return this.selectedCard;
+   }
+}
