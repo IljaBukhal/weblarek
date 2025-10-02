@@ -1,11 +1,9 @@
 import { IProduct } from "../../types";
 
 export class ShoppingCart {
-   protected _selectedProducts: IProduct[];
+   protected _selectedProducts: IProduct[] = [];
 
-   constructor(products: IProduct[] = []) {
-      this._selectedProducts = products;
-   }
+   constructor(){}
 
    getSelectedProducts(): IProduct[] {
       return this._selectedProducts;

@@ -127,12 +127,6 @@ Presenter - презентер содержит основную логику п
 
 #### interface IOrder
 
-Описывает данные о заказе.  
-Поля, описанные интерфейсом:  
-`payment: TPayment;` - способ оплаты.  
-`email: string;` - email пользователя.  
-`phone: string;` - номер телефона пользователя.  
-`address: string;` - адрес пользователя.  
 `total: number;` - количество товаров в заказе.  
 `items: string[];` - массив id товаров в заказе.
 
@@ -143,14 +137,22 @@ Presenter - презентер содержит основную логику п
 `total: number;` - количество товаров в заказе.  
 `items: IProduct[];` - массив объектов, содержащих данные о продуктах.
 
-#### interface ValidationResult
+#### interface IValidationResult
 
 Описывает объект, возвращаемый в результате валидации данных покупателя. Поля схожи с интерфейсом IBuyer, но является необязательными. В качестве значений для полей предполагаются ошибки валидации.  
 Поля, описанные интерфейсом:  
-`payment?: TPayment;` - способ оплаты.  
+`payment?: string;` - способ оплаты.  
 `email?: string;` - email пользователя.  
 `phone?: string;` - номер телефона пользователя.
 `address?: string;` - адрес пользователя.
+
+#### interface IRespOrder
+
+Описывает объект, возвращаемый в результате post запроса к api.  
+Поля, описанные интерфейсом:  
+`id?: string;` - id заказа.  
+`total?: number;` - сумма заказа.  
+`error?: string;` - ошибка запроса.
 
 ### Модели данных
 
@@ -161,12 +163,7 @@ Presenter - презентер содержит основную логику п
 `protected products: IProduct[];` - массив продуктов.  
 `protected selectedCard: IProduct | undefined;` - содержит объект описываемый интерфейсом IProduct, если товар не выбран - хранит undefined.  
 
-Конструктор класса:  
-```ts
-constructor(products: IProduct[]){
-  this.products = products;
-}
-```
+Конструктор класса: пуст.
 
 Методы класса:
 `saveProducts(products: IProduct[]): void` - сохраняет переданный в качестве аргумента массив товаров в каталог.  
@@ -225,7 +222,7 @@ constructor(buyer?: IBuyer) {
 `changeAddress(newValue: string): void` - меняет адрес покупателя.
 `getBuyerData(): IBuyer` - возвращает объект с данными пользователя.
 `clearBuyerData(): void` - очищает данные пользователя. Все поля данного класса принимает значение: ''.  
-`validateData(): ValidationResult` - возвращает объект с ошибками валидации. Объект может быть пустым, если ошибки в данных отсутствуют.
+`validateData(): IValidationResult` - возвращает объект с ошибками валидации. Объект может быть пустым, если ошибки в данных отсутствуют.
 
 ### Слой коммуникации
 
@@ -241,6 +238,6 @@ constructor(api: IApi) {
 }
 ```
 
-Методы класса:
-`get(url: string): Promise<IProductList>` - Пользуясь методом get класса Api, посылает get запрос на сервер. Возвращает промис с товарами.  
-`post(uri: string, data: object, method?: ApiPostMethods | undefined)` - Пользуясь методом post класса Api, посылает post запрос на сервер.
+Методы класса:  
+`getProducts(): Promise<IProductList>` - Пользуясь методом get класса Api, посылает get запрос на сервер. Возвращает промис с товарами.  
+`postOrder(data: IOrder, method?: ApiPostMethods | undefined): Promise<IRespOrder>` - Пользуясь методом post класса Api, посылает post запрос на сервер.

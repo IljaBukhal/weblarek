@@ -24,10 +24,6 @@ export interface IBuyer {
 }
 
 export interface IOrder {
-    payment: TPayment;
-    email: string;
-    phone: string;
-    address: string;
     total: number;
     items: string[];
 }
@@ -37,9 +33,15 @@ export interface IProductList {
     items: IProduct[];
 }
 
-export interface ValidationResult {
+export interface IValidationResult {
     payment?: string,
     email?: string,
     phone?: string,
     address?: string
+}
+
+export interface IRespOrder {
+    id?: string;
+    total?: number;
+    error?: string;
 }

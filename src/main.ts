@@ -1,6 +1,6 @@
 import './scss/styles.scss';
 import { Catalog } from './components/models/Catalog';
-import { IApi, IProduct, IProductList } from './types';
+import { IApi, IProductList } from './types';
 import { apiProducts } from './utils/data';
 import { ShoppingCart } from './components/models/ShoppingCart';
 import { Buyer } from './components/models/Buyer';
@@ -11,41 +11,17 @@ import { API_URL } from './utils/constants';
 // Catalog
 console.log('Тестирование методов класса Catalog');
 
-const catalog: Catalog = new Catalog(apiProducts.items);
-const catalog2: Catalog = new Catalog([]); 
-const newProduct: IProduct = {
-            "id": "1c521d84-c48d-48fa-8cfb-9d911fa515fd",
-            "description": "Если орёт кот, нажмите кнопку.",
-            "image": "/mute-cat.svg",
-            "title": "Кнопка «Замьютить кота»",
-            "category": "кнопка",
-            "price": 2000
-        }
-const newProducts: IProduct[] = [
-   {
-            "id": "f3867296-45c7-4603-bd34-29cea3a061d5",
-            "description": "Чтобы научиться правильно называть модификаторы, без этого не обойтись.",
-            "image": "Pill.svg",
-            "title": "БЭМ-пилюлька",
-            "category": "другое",
-            "price": 1500
-        },
-        {
-            "id": "54df7dcb-1213-4b3c-ab61-92ed5f845535",
-            "description": "Измените локацию для поиска работы.",
-            "image": "/Polygon.svg",
-            "title": "Портативный телепорт",
-            "category": "другое",
-            "price": 100000
-        }
-];
+const catalog: Catalog = new Catalog();
+catalog.saveProducts(apiProducts.items)
+
+const catalog2: Catalog = new Catalog();
 
 console.log(
    'Получить все товары из каталога:\n',
    catalog.getProducts()
 );
 
-catalog2.saveProducts(newProducts);
+catalog2.saveProducts(apiProducts.items);
 console.log(
    'Сохранил массив товаров, полученный в параметрах метода:',
    catalog2.getProducts()
@@ -56,7 +32,7 @@ console.log(
    catalog.getProductById('c101ab44-ed99-4a54-990d-47aa2bb4e7d9')
 );
 
-catalog.saveProduct(newProduct);
+catalog.saveProduct(apiProducts.items[0]);
 console.log(
    'Сохранил и получил элемент для подробного отображения:\n',
    catalog.getSelectedCard()
@@ -65,13 +41,13 @@ console.log(
 // ShoppingCart
 console.log('Тестирование методов класса ShoppingCart');
 
-const cart: ShoppingCart = new ShoppingCart([]);
+const cart: ShoppingCart = new ShoppingCart();
 
 console.log('Получил элементы корзины:\n', cart.getSelectedProducts());
 
-cart.addProductToCart(newProducts[0]);
-cart.addProductToCart(newProducts[1]);
-console.log('Добавил элементы корзину:\n', cart.getSelectedProducts());
+cart.addProductToCart(apiProducts.items[0]);
+cart.addProductToCart(apiProducts.items[1]);
+console.log('Добавил элементы в корзину:\n', cart.getSelectedProducts());
 
 console.log('Стоимость корзины: ', cart.getTotalPrice());
 console.log('Кол-во товаров в корзине: ', cart.getNumberProductsInCart());
@@ -114,9 +90,9 @@ console.log('Тестирование класса Connection');
 
 const api: IApi = new Api(API_URL);
 const connection: Connection = new Connection(api);
-const catalog3: Catalog = new Catalog([])
+const catalog3: Catalog = new Catalog();
 
-connection.get('/product/')
+connection.getProducts()
    .then((productList: IProductList) => {
       catalog3.saveProducts(productList.items);
    })

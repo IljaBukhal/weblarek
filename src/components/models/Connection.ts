@@ -1,20 +1,19 @@
-import { ApiPostMethods, IApi, IProductList } from "../../types";
+import { ApiPostMethods, IApi, IOrder, IProductList, IRespOrder } from "../../types";
 
 export class Connection{
    public api: IApi;
    constructor(api: IApi) {
-      this.api = api
+      this.api = api;
    }
 
-   get(url: string): Promise<IProductList> {
-      return this.api.get(url);
+   getProducts(): Promise<IProductList> {
+      return this.api.get('/product/');
    }
 
-   post(
-      uri: string,
-      data: object,
+   postOrder(
+      data: IOrder,
       method?: ApiPostMethods | undefined
-   ) {
-      this.api.post(uri, data, method);
+   ): Promise<IRespOrder> {
+      return this.api.post('/order/', data, method);
    }
 }

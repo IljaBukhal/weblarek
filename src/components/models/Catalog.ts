@@ -1,12 +1,10 @@
 import { IProduct } from "../../types";
 
 export class Catalog {
-   protected products: IProduct[];
+   protected products: IProduct[] = [];
    protected selectedCard: IProduct | undefined;
 
-   constructor(products: IProduct[]){
-      this.products = products;
-   }
+   constructor(){}
 
    saveProducts(products: IProduct[]): void {
       this.products = products;

@@ -1,4 +1,4 @@
-import { IBuyer, TPayment, ValidationResult } from "../../types";
+import { IBuyer, TPayment, IValidationResult } from "../../types";
 
 export class Buyer implements IBuyer {
    public payment: TPayment = '';
@@ -47,8 +47,8 @@ export class Buyer implements IBuyer {
       this.address = '';
    }
 
-   validateData(): {} {
-      const validationResult: ValidationResult = {};
+   validateData(): IValidationResult {
+      const validationResult: IValidationResult = {};
       if (!this.payment) validationResult
          .payment = 'Укажите способ оплаты';
       if (!this.email) validationResult
