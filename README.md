@@ -127,6 +127,7 @@ Presenter - презентер содержит основную логику п
 
 #### interface IOrder
 
+Описывает отсылаемый на сервер объект заказа. Наследует интерфейсу IBuyer.  
 `total: number;` - количество товаров в заказе.  
 `items: string[];` - массив id товаров в заказе.
 
@@ -240,4 +241,4 @@ constructor(api: IApi) {
 
 Методы класса:  
 `getProducts(): Promise<IProductList>` - Пользуясь методом get класса Api, посылает get запрос на сервер. Возвращает промис с товарами.  
-`postOrder(data: IOrder, method?: ApiPostMethods | undefined): Promise<IRespOrder>` - Пользуясь методом post класса Api, посылает post запрос на сервер.
+`postOrder(data: IOrder): Promise<IRespOrder>` - Пользуясь методом post класса Api, посылает post запрос на сервер.

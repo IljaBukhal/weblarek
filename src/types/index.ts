@@ -23,7 +23,7 @@ export interface IBuyer {
     address: string;
 }
 
-export interface IOrder {
+export interface IOrder extends IBuyer {
     total: number;
     items: string[];
 }
