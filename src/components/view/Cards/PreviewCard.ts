@@ -42,7 +42,7 @@ export class PreviewCard extends Card {
 
    set image(src: string) {
       this.imageElem.setAttribute('src', `${CDN_URL}${src}`);
-      this.imageElem.setAttribute('alt', this.titleElem.textContent);
+      this.imageElem.setAttribute('alt', this.titleElem.textContent ?? '');
    }
  
    set description(value: string) {
