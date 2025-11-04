@@ -257,9 +257,682 @@ constructor(api: IApi) {
 
 #### Класс Header
 
-Отвечает за отображение
+Отвечает за отображение верхней части страницы. Наследует классу Component, интерфейс для рендера:  
+```ts
+interface HeaderData {
+   counter: number;
+}
+```
+
+Конструктор класса:  
+```ts
+constructor(container: HTMLElement, protected events: IEvents) {
+      super(container);
+
+      this.basketButton = ensureElement<HTMLButtonElement>(
+         '.header__basket',
+         this.container
+      );
+      this.counterElement = ensureElement<HTMLElement>(
+         '.header__basket-counter',
+         this.container
+      );
+
+      this.basketButton.addEventListener('click', () => {
+         this.events.emit('basket:open');
+      });
+   }
+```
+
+Сеттеры класса:  
+`set counter(value: number)` - меняет значение счётчика на иконке корзины.  
 
 #### Класс Gallery
-#### Класс Modal
+
+Отвечает за отображение верхней части страницы. Наследует классу Component, интерфейс для рендера:  
+```ts
+interface GalleryData {
+   catalog: HTMLElement[];
+}
+```
+
+Конструктор класса:
+```ts
+constructor(protected container: HTMLElement) {
+  super(container);
+}
+```
+
+Сеттеры класса:  
+`set catalog (cards: HTMLElement[])` - отображает карточки товаров в галерее.
+
 #### Класс Card
+
+Абстрактный класс. Отвечает за отображение карточек товаров. Наследует классу Component, интерфейс для рендера:  
+```ts
+interface CardData extends IProduct {
+   index?: number
+}
+```
+
+Конструктор класса:  
+```ts
+   constructor(container: HTMLElement, protected events: IEvents){
+      super(container);
+
+      this.cardElem = this.container;
+      this.titleElem = ensureElement(
+         '.card__title', 
+         this.cardElem
+      );
+      this.priceElem = ensureElement(
+         '.card__price', 
+         this.cardElem
+      );
+   }
+```
+
+Сеттеры класса:
+`set id(id: string)` - устанавливает id элементу карточки.  
+`set title(title: string)` - устанавливает textContent для элемента наименования товара.  
+`set price(price: number | null )` - устанавливает textContent для элемента стоимости товара.  
+
+#### Класс GalleryCard
+Отвечает за отображение карточек товаров, в галерее. Наследует классу Card.
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, events: IEvents) {
+      super(container, events);
+
+      this.container.addEventListener('click', (evt) => {
+         this.events.emit('gallery-card:open', evt)
+      });
+
+      this.categoryElem = ensureElement(
+         '.card__category',
+         this.cardElem
+      );
+      this.imageElem = ensureElement(
+         '.card__image',
+         this.cardElem
+      );
+   }
+```
+
+Сеттеры класса
+`set category(category: TCategory)` - устанавливает textContent для элемента категории товара.  
+`set image(src: string)` - устанавливает изображение товара.  
+
+#### Класс PreviewCard
+
+Отвечает за отображение карточки товара, открытого для предварительного просмотра. Наследует классу Card.
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, events: IEvents) {
+      super(container, events);
+
+      this.imageElem = ensureElement(
+         '.card__image',
+         this.container
+      );
+      this.categoryElem = ensureElement(
+         '.card__category',
+         this.container
+      );
+      this.descriptionElem = ensureElement(
+         '.card__text',
+         this.container
+      );
+      this.buttonElem = ensureElement(
+         '.card__button',
+         this.container
+      );
+      this.buttonElem.addEventListener('click', () => {
+         this.events.emit('card:addInBasket');
+      });
+   }
+```
+
+Сеттеры класса:
+`set category(category: TCategory)` - устанавливает textContent для элемента категории товара.  
+`set image(src: string)` - устанавливает изображение товара.  
+`set description(value: string)` - устанавливает textContent для элемента описания товара.  
+
+Методы класса
+`setButtonSate(value: TButtonState)` - позволяет изменить состояние кнопки.   
+
+#### Класс BasketCard
+
+Отвечает за отображение карточек товаров, в корзине. Наследует классу Card.
+
+Конструктор класса:
+```ts
+constructor(container: HTMLElement, events: IEvents) {
+  super(container, events);
+  
+  this.indexElem = ensureElement(
+      '.basket__item-index',
+      this.container
+  );
+  this.deleteBtn = ensureElement(
+      '.card__button',
+      this.container
+  );
+  this.deleteBtn.addEventListener('click', (evt: PointerEvent) => {
+      this.events.emit('basked-card:delete', evt);
+  });
+}
+```
+
+Сеттеры класса:
+`set index(index: number)` - устанавливает порядковый номер элемента в корзине.
+
+#### Класс Modal
+
+Отвечает за отображение модальных окон. Для рендера принимает рендер экземпляра другого класса, который использует как наполнение. Наследует классу Component, интерфейс для рендера:
+```ts
+interface ModalData {
+   display: boolean;
+   content: HTMLElement;
+}
+```
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, protected events: IEvents) {
+      super(container);
+
+      this.container.addEventListener('click', (evt) => {
+         const targetElem = evt.target as HTMLElement;
+         if (targetElem.classList.contains('modal'))
+            this.events.emit('modal:close');
+      });
+
+      this.closeButton = ensureElement(
+         '.modal__close',
+         this.container
+      );
+      this.closeButton.addEventListener('click', () => {
+         this.events.emit('modal:close');
+      });
+
+      this.contentContainer = ensureElement(
+         '.modal__content',
+         this.container
+      );
+   }
+```
+
+Сеттеры класса:
+`set display(value: boolean)` - переключает отображение модального окна.  
+`set content(content: HTMLElement)` - принимает рендер экземпляра другого класса, который использует как наполнение.  
+
+#### Класс BasketMdlContent
+
+Отвечает за отображение содержимого окна корзины. Наследует классу Component, интерфейс для рендера:
+```ts
+interface BasketMdlContentData {
+   selectedProducts: HTMLElement[],
+   price: number
+}
+```
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, protected events: IEvents) {
+      super(container);
+
+      this.basketList = ensureElement(
+         '.basket__list',
+         this.container
+      );
+      this.basketButton = ensureElement(
+         '.basket__button',
+         this.container
+      );
+      this.basketButton.addEventListener('click', () => {
+         this.events.emit('basket:confirmation');
+      });
+
+      this.basketPrice = ensureElement(
+         '.basket__price',
+         this.container
+      );
+   }
+```
+
+Сеттеры класса:
+`set selectedProducts(products: HTMLElement[])` - устанавливает карточки товаров в корзине.  
+`set price(price: number)` - устанавливает textContent элемента стоимости заказа.
+
+Методы класса:
+`setButtonSate(value: TButtonState)` -  позволяет изменить состояние кнопки.
+
+#### Класс SuccessMdlContent
+
+Отвечает за отображение содержимого окна завершения заказа. Наследует классу Component, интерфейс для рендера:
+```ts
+interface SuccessMdlContentData {
+   synapses: number
+}
+```
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, protected events: IEvents) {
+      super(container);
+
+      this.descriptionElem = ensureElement(
+         '.order-success__description',
+         this.container
+      );
+      this.buttonElem = ensureElement(
+         '.order-success__close',
+         this.container
+      );
+      this.buttonElem.addEventListener('click', () => {
+         this.events.emit('modal:close');
+      });
+   }
+```
+
+Сеттеры класса:
+`set synapses(value: number)` - устанавливает textContent для элемента итоговой суммы заказа. 
+
 #### Класс Form
+
+Абстрактный класс. Отвечает за отображение форм. Наследует классу Component, интерфейс для рендера:  
+```ts
+interface FormData {
+   errorMessage: string,
+   paymentMethod: TPayment,
+   address: string,
+   email: string,
+   phone: string
+}
+```
+
+Конструктор класса:
+```ts
+constructor(container: HTMLElement, protected events: IEvents) {
+   super(container);
+
+   this.modalActionsElem = ensureElement(
+      '.modal__actions',
+      this.container
+   );
+   this.submitButton = ensureElement(
+      '.button',
+      this.modalActionsElem
+   );
+   this.formErrElem = ensureElement(
+      '.form__errors',
+      this.modalActionsElem
+   );
+}
+```
+
+Сеттеры класса:
+`set errorMessage(value: string)` - устанавливает сообщение об ошибке.  
+
+Методы класса:
+`setSubmitButtonSate(value: TButtonState)` - позволяет изменить состояние кнопки.  
+
+#### Класс OrderForm
+
+Отвечает за отображение формы заказа. Наследует классу Form.
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, events: IEvents) {
+      super(container, events);
+
+      this.cardButton = ensureElement(
+         'button[name="card"]',
+         this.container
+      );
+      this.cardButton.addEventListener('click', () => {
+         this.events.emit('card-button:select');
+         this.events.emit('order-form:validation', {
+            'cardButton': this.cardButton,
+            'cashButton': this.cashButton,
+            'inputAddress': this.inputAddress
+            });
+      });
+
+      this.cashButton = ensureElement(
+         'button[name="cash"]',
+         this.container
+      );
+      this.cashButton.addEventListener('click', () => {
+         this.events.emit('cash-button:select');
+         this.events.emit('order-form:validation', {
+            'cardButton': this.cardButton,
+            'cashButton': this.cashButton,
+            'inputAddress': this.inputAddress
+            });
+      });
+
+      this.inputAddress = ensureElement(
+         'input[name="address"]',
+         this.container
+      ) as HTMLInputElement;
+      this.inputAddress.addEventListener('input', () => {
+         this.events.emit('order-form:validation', {
+            'cardButton': this.cardButton,
+            'cashButton': this.cashButton,
+            'inputAddress': this.inputAddress
+         });
+      });
+
+      this.container.addEventListener('submit', (evt) => {
+         this.events.emit('order-form:submit', evt);
+      })
+   }
+```
+
+Сеттеры класса:
+`set paymentMethod(value: TPayment)` - активирует одну из кнопок выбора типа оплаты.  
+`set address(value: string)` - заполняет переданным значением поле ввода адреса.  
+
+#### Класс ContactsForm 
+
+Отвечает за отображение формы сбора контактов. Наследует классу Form.
+
+Конструктор класса:
+```ts
+   constructor(container: HTMLElement, events: IEvents) {
+      super(container, events);
+
+      this.container.addEventListener('submit', (evt: SubmitEvent) => {
+         this.events.emit('contacts-form:submit', evt);
+      })
+
+      this.inputEmail = ensureElement(
+         'input[name="email"]',
+         this.container
+      ) as HTMLInputElement;
+      this.inputEmail.addEventListener('input', () => {
+         this.events.emit('contacts-form:validation', {
+            'inputEmail': this.inputEmail,
+            'inputPhone': this.inputPhone
+         });
+      })
+
+      this.inputPhone = ensureElement(
+         'input[name="phone"]',
+         this.container
+      ) as HTMLInputElement;
+      this.inputPhone.addEventListener('input', () => {
+         this.events.emit('contacts-form:validation', {
+            'inputEmail': this.inputEmail,
+            'inputPhone': this.inputPhone
+         });
+      })
+   }
+```
+
+Сеттеры класса:
+`set email(value: string)` - заполняет переданным значением поле ввода электронной почты.  
+`set phone(value: string)` - заполняет переданным значением поле ввода номера телефона.  
+
+
+### Презентер
+
+Место соединения данных и представления. Находящихся в файле main.ts.
+
+После импорта необходимых констант, классов, методов, создания экземпляров классов и поиска элементов на странице - идёт деактивация кнопок в контенте корзины и превью карты, вешается событие для закрытия модальных окон, а событию дается обработчик:
+```ts
+previewCardContent.setButtonSate('inactive');
+basketContent.setButtonSate('inactive');
+
+document.addEventListener('keydown', (evt) => {
+	if (evt.key === 'Escape')
+		events.emit('modal:close');
+});
+
+events.on('modal:close', () => {
+	modal.render({ 'display': false });
+});
+```
+
+Рендерится Header:
+```ts
+header.render({
+	'counter': basket.getNumberProductsInBasket()
+});
+```
+
+Вешаются обработчики на события basket:
+```ts 
+events.on('basket:open', () => {
+	let cardIndex: number = 1;
+	basketContent.setButtonSate(
+		basket.getNumberProductsInBasket() > 0
+		? 'active'
+		: 'inactive'
+	)
+	const basketContentRender = basketContent.render({
+		'price': basket.getTotalPrice(),
+		'selectedProducts': basket.getSelectedProducts()
+			.map((product) => new BasketCard(
+				cloneTemplate('#card-basket'),
+				events
+			).render({
+				'id': product.id,
+				'title': product.title,
+				'price': product.price,
+				'index': cardIndex++
+			}))
+	});
+
+	modal.render({
+		'display': true,
+		'content': basketContentRender
+	});
+});
+
+events.on('basked-card:delete', (evt: PointerEvent) => {
+	const selectedCard = (evt.currentTarget as HTMLElement)
+		.closest('.card') as HTMLElement;
+	const idSelectedCard = selectedCard.id;
+
+	basket.removeProductFromBasket(idSelectedCard);
+	header.render({
+		'counter': basket.getNumberProductsInBasket()
+	});
+	events.emit('basket:open');
+});
+
+events.on('basket:confirmation', () => {
+	modal.render({
+		'display': true,
+		'content': orderFormContent.render()
+	});
+});
+```
+
+Делается запрос товаров на сервер и заполняется ими галерея. Вешаются обработчики на события card:
+```ts
+connections.getProducts()
+	.then((products) => {
+		catalog.saveProducts(products.items);
+		return catalog.getProducts();
+	}).then((products) => {
+		const galleryElements: HTMLElement[] = [];
+
+		products.forEach((item) => {
+			galleryElements.push(new GalleryCard(
+				cloneTemplate('#card-catalog'),
+				events
+			).render({
+				"id": item.id,
+            "description": item.description,
+            "image": item.image,
+            "title": item.title,
+            "category": item.category,
+            "price": item.price
+			}));
+		});
+
+		gallery.render({
+			'catalog': galleryElements
+		});
+	});
+
+events.on('gallery-card:open', (evt: PointerEvent) => {
+	const selectedCard: HTMLElement = evt
+		.currentTarget as HTMLElement;
+	const idSelectedCard: string = selectedCard.id;
+	catalog.selectProduct(
+		catalog.getProductById(idSelectedCard) as IProduct
+	)
+
+	if (catalog.getSelectedCard()?.price)
+		previewCardContent.setButtonSate('active');
+	else 
+		previewCardContent.setButtonSate('inactive');
+
+	if (basket.isProductInBasket(
+		catalog.getSelectedCard()?.id as string
+	)) previewCardContent.setButtonSate('inactive');
+
+	modal.render({
+		'display': true,
+		'content': previewCardContent.render({
+			"id": catalog.getSelectedCard()?.id,
+			"description": catalog.getSelectedCard()?.description,
+			"image": catalog.getSelectedCard()?.image,
+			"title": catalog.getSelectedCard()?.title,
+			"category": catalog.getSelectedCard()?.category,
+			"price": catalog.getSelectedCard()?.price
+		})
+	});
+});
+
+events.on('card:addInBasket', () => {
+	basket.addProductToBasket(
+		catalog.getSelectedCard() as IProduct
+	);
+	events.emit('modal:close');
+	header.render({ 'counter': basket.getNumberProductsInBasket() });
+})
+```
+
+Вешаются обработчики на события, необходимые для работы с формой заказа:
+```ts
+events.on('order-form:validation', (event: {
+	cashButton: HTMLElement,
+	cardButton: HTMLElement,
+	inputAddress: HTMLInputElement
+}) => {
+	if (
+		(
+			!event.cardButton.classList.contains('button_alt-active')
+			&& !event.cashButton.classList.contains('button_alt-active')
+		) || !event.inputAddress.value.length
+	) {
+		orderFormContent.setSubmitButtonSate('inactive');
+		orderFormContent.errorMessage = 'Выберите способ оплаты и введите адрес проживания';
+	} else {
+		orderFormContent.setSubmitButtonSate('active');
+		orderFormContent.errorMessage = '';
+	}
+});
+
+events.on('card-button:select', () => {
+	orderFormContent.paymentMethod = 'card';
+});
+
+events.on('cash-button:select', () => {
+	orderFormContent.paymentMethod = 'cash';
+});
+
+events.on('order-form:submit', (evt: SubmitEvent) => {
+	evt.preventDefault();
+	const buttonCard: HTMLElement = ensureElement(
+		'button[name="card"]',
+		evt.currentTarget as HTMLElement
+	);
+	const inputAddress: HTMLInputElement = ensureElement(
+		'input[name="address"]',
+		evt.currentTarget as HTMLElement
+	) as HTMLInputElement;
+
+	if (buttonCard.classList.contains('button_alt-active')) {
+		buyer.changePayment('card');
+	} else buyer.changePayment('cash');
+
+	buyer.changeAddress(inputAddress.value);
+	modal.render({
+		'display': true,
+		'content': contactsFormContent.render()
+	});
+});
+```
+Вешаются обработчики на события, необходимые для работы с формой сбора контактов:
+```ts
+events.on('contacts-form:validation', (event: {
+	inputEmail: HTMLInputElement,
+	inputPhone: HTMLInputElement
+}) => {
+	if (
+		!event.inputEmail.value.length
+		|| !event.inputPhone.value.length
+	) {
+		contactsFormContent.setSubmitButtonSate('inactive');
+		contactsFormContent.errorMessage = 'Введите адрес электронной почты и номер телефона';
+	} else {
+		contactsFormContent.setSubmitButtonSate('active');
+		contactsFormContent.errorMessage = '';
+	}
+});
+
+events.on('contacts-form:submit', (evt: SubmitEvent) => {
+	evt.preventDefault();
+	
+	const inputEmail: HTMLInputElement = ensureElement(
+		'input[name="email"]',
+		evt.currentTarget as HTMLElement
+	) as HTMLInputElement;
+	const inputPhone: HTMLInputElement = ensureElement(
+		'input[name="phone"]',
+		evt.currentTarget as HTMLElement
+	) as HTMLInputElement;
+
+	buyer.changeEmail(inputEmail.value);
+	buyer.changePhone(inputPhone.value);
+	
+	connections.postOrder({ 
+		payment: buyer.payment,
+		email: buyer.email,
+		phone: buyer.phone,
+		address: buyer.address,
+		items: basket.getSelectedProducts()
+			.map((product) => product.id),
+		total: basket.getTotalPrice()
+	 })
+	 .then((data) => console.log(data))
+	 .catch((error) => console.error(error));
+
+	modal.render({
+		'display': true,
+		'content': successContent.render({
+			'synapses': basket.getTotalPrice()
+		})
+	});
+
+	basket.clearBasket();
+	header.render({ 'counter': basket.getNumberProductsInBasket() });
+	orderFormContent.render({
+		'paymentMethod': '',
+		'address': ''
+	});
+	contactsFormContent.render({
+		'email': '',
+		'phone': '',
+	});
+});
+```
