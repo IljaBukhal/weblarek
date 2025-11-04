@@ -267,6 +267,18 @@ events.on('contacts-form:submit', (evt: SubmitEvent) => {
 	buyer.changeEmail(inputEmail.value);
 	buyer.changePhone(inputPhone.value);
 	
+	connections.postOrder({ 
+		payment: buyer.payment,
+		email: buyer.email,
+		phone: buyer.phone,
+		address: buyer.address,
+		items: basket.getSelectedProducts()
+			.map((product) => product.id),
+		total: basket.getTotalPrice()
+	 })
+	 .then((data) => console.log(data))
+	 .catch((error) => console.error(error));
+
 	modal.render({
 		'display': true,
 		'content': successContent.render({
