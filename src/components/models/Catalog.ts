@@ -20,7 +20,7 @@ export class Catalog {
       });
    }
 
-   saveProduct(product: IProduct): void {
+   selectProduct(product: IProduct): void {
       this.selectedCard = product;
    }
 

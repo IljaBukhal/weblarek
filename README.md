@@ -157,7 +157,7 @@ Presenter - презентер содержит основную логику п
 
 ### Модели данных
 
-#### class Catalog
+#### Класс Catalog
 
 Хранение товаров, которые можно купить в приложении.  
 Поля класса:  
@@ -173,7 +173,7 @@ Presenter - презентер содержит основную логику п
 `saveProduct(product: IProduct): void` - сохраняет товар, переданный в качестве аргумента, для подробного отображения.  
 `getSelectedCard(): IProduct | undefined` - возвращает товар для подробного отображения. Если товар не был сохранен для подробного отображения, возвращается undefined.  
 
-#### class ShoppingCart
+#### Класс Basket
 
 Хранение товаров, которые пользователь выбрал для покупки.  
 Поля класса:
@@ -188,14 +188,14 @@ constructor(products: IProduct[] = []) {
 
 Методы класса:  
 `getSelectedProducts(): IProduct[]` - возвращает массив выбранных пользователем для покупки товаров.  
-`addProductToCart(product: IProduct): void` - добавляет переданный в качестве аргумента товар в корзину.
-`removeProductFromCart(id: string): void` - удаляет из корзины товар по переданному в качестве аргумента ID.
-`clearCart(): void` - очищает корзину.
+`addProductToBasket(product: IProduct): void` - добавляет переданный в качестве аргумента товар в корзину.
+`removeProductFromBasket(id: string): void` - удаляет из корзины товар по переданному в качестве аргумента ID.
+`clearBasket(): void` - очищает корзину.
 `getTotalPrice(): number` - возвращает общую стоимость элементов корзины.
-`getNumberProductsInCart(): number` - возвращает количество товаров в корзине.
-`isProductInCart(id: string): boolean` - проверяет наличие товара в корзине.
+`getNumberProductsInBasket(): number` - возвращает количество товаров в корзине.
+`isProductInBasket(id: string): boolean` - проверяет наличие товара в корзине.
 
-#### class Buyer
+#### Класс Buyer
 
 Хранение данных покупателя, которые тот должен указать при оформлении заказа. Класс имплементирует интерфейс IBuyer.  
 Поля класса:  
@@ -227,7 +227,7 @@ constructor(buyer?: IBuyer) {
 
 ### Слой коммуникации
 
-#### class Connection
+#### Класс Connection
 
 Отправляет get и pos запросы на API. При помощи композиции задействует функционал класса API:
 `public api: IApi;`
@@ -242,3 +242,14 @@ constructor(api: IApi) {
 Методы класса:  
 `getProducts(): Promise<IProductList>` - Пользуясь методом get класса Api, посылает get запрос на сервер. Возвращает промис с товарами.  
 `postOrder(data: IOrder): Promise<IRespOrder>` - Пользуясь методом post класса Api, посылает post запрос на сервер.
+
+### Слой представления
+
+#### Класс Header
+
+Отвечает за отображение
+
+#### Класс Gallery
+#### Класс Modal
+#### Класс Card
+#### Класс Form

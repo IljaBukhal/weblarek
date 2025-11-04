@@ -1,26 +1,24 @@
 import { IProduct } from "../../types";
 
-export class ShoppingCart {
+export class Basket {
    protected _selectedProducts: IProduct[] = [];
-
-   constructor(){}
 
    getSelectedProducts(): IProduct[] {
       return this._selectedProducts;
    }
 
-   addProductToCart(product: IProduct): void {
+   addProductToBasket(product: IProduct): void {
       this._selectedProducts.push(product);
    }
 
-   removeProductFromCart(id: string): void {
+   removeProductFromBasket(id: string): void {
       this._selectedProducts = this
          ._selectedProducts.filter((product) => {
             return product.id !== id;
          });
    }
 
-   clearCart(): void {
+   clearBasket(): void {
       this._selectedProducts = [];
    }
 
@@ -31,11 +29,11 @@ export class ShoppingCart {
          }, 0);
    }
 
-   getNumberProductsInCart(): number {
+   getNumberProductsInBasket(): number {
       return this._selectedProducts.length;
    }
 
-   isProductInCart(id: string): boolean {
+   isProductInBasket(id: string): boolean {
       return this._selectedProducts.some((product) => {
          return product.id === id
       });

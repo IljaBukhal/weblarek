@@ -8,6 +8,10 @@ html, body.page {
 	background: $background;
 }
 
+body:has(.modal_active) {
+  overflow: hidden;
+}
+
 .page__wrapper {
 	width: 100%;
 

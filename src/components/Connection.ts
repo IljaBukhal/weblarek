@@ -1,4 +1,4 @@
-import { IApi, IOrder, IProductList, IRespOrder } from "../../types";
+import { IApi, IOrder, IProductList, IRespOrder } from "../types";
 
 export class Connection{
    public api: IApi;
