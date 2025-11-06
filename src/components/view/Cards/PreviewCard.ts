@@ -1,8 +1,10 @@
 import { Card } from "./Card";
 import { ensureElement } from "../../../utils/utils";
-import { TButtonState, TCategory } from "../../../types";
+import { TCategory } from "../../../types";
 import { categoryMap, CDN_URL } from "../../../utils/constants";
 import { IEvents } from "../../base/Events";
+
+type TPreviewCardBtnState = 'buy' | 'delete' | 'unavailable';
 
 export class PreviewCard extends Card {
    protected imageElem: HTMLElement;
@@ -30,7 +32,7 @@ export class PreviewCard extends Card {
          this.container
       );
       this.buttonElem.addEventListener('click', () => {
-         this.events.emit('card:addInBasket');
+            this.events.emit('preview-card-btn:pressing');
       });
    }
 
@@ -49,10 +51,19 @@ export class PreviewCard extends Card {
       this.descriptionElem.textContent = value;
    }
 
-   setButtonSate(value: TButtonState) {
-      if (value === 'inactive')
-         this.buttonElem.setAttribute('disabled', 'true');
-      else 
-         this.buttonElem.removeAttribute('disabled');
+   setButtonSate(value: TPreviewCardBtnState) {
+      switch(value) {
+         case 'buy':
+            this.buttonElem.textContent = 'Купить';
+            this.buttonElem.removeAttribute('disabled');
+            break;
+         case 'unavailable':
+            this.buttonElem.textContent = 'Недоступно';
+            this.buttonElem.setAttribute('disabled', 'true');
+            break;
+         case 'delete':
+            this.buttonElem.textContent = 'Удалить из корзины';
+            this.buttonElem.removeAttribute('disabled');
+      }
    }
 }

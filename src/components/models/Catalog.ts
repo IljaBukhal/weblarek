@@ -1,13 +1,15 @@
 import { IProduct } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class Catalog {
    protected products: IProduct[] = [];
    protected selectedCard: IProduct | undefined;
 
-   constructor(){}
+   constructor(protected events: IEvents){}
 
    saveProducts(products: IProduct[]): void {
       this.products = products;
+      this.events.emit('catalog:changing');
    }
 
    getProducts(): IProduct[] {
@@ -22,6 +24,7 @@ export class Catalog {
 
    selectProduct(product: IProduct): void {
       this.selectedCard = product;
+      this.events.emit('selected-product:changing');
    }
 
    getSelectedCard(): IProduct | undefined {

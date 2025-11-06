@@ -11,8 +11,10 @@ export class GalleryCard extends Card {
    constructor(container: HTMLElement, events: IEvents) {
       super(container, events);
 
-      this.container.addEventListener('click', (evt) => {
-         this.events.emit('gallery-card:open', evt)
+      this.container.addEventListener('click', () => {
+         this.events.emit('gallery-card:select', {
+            'cardElement': this.container
+         })
       });
 
       this.categoryElem = ensureElement(

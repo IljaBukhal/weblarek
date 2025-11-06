@@ -23,7 +23,7 @@ export class Header extends Component<HeaderData> {
       );
 
       this.basketButton.addEventListener('click', () => {
-         this.events.emit('basket:open');
+         this.events.emit('open-basket-button:pressing');
       });
    }
 

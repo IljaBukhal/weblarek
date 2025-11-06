@@ -18,7 +18,7 @@ export class BasketCard extends Card {
          this.container
       );
       this.deleteBtn.addEventListener('click', (evt: MouseEvent) => {
-         this.events.emit('basked-card:delete', evt);
+         this.events.emit('basked-delete-card-btn:pressing', evt);
       });
    }
 

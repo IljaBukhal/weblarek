@@ -50,7 +50,11 @@ export class OrderForm extends Form {
       });
 
       this.container.addEventListener('submit', (evt) => {
-         this.events.emit('order-form:submit', evt);
+         this.events.emit('order-form-submit-btn:pressing', {
+            'submitEvent': evt,
+            'cardButton': this.cardButton,
+            'inputAddress': this.inputAddress
+         });
       })
    }
 

@@ -10,7 +10,11 @@ export class ContactsForm extends Form {
       super(container, events);
 
       this.container.addEventListener('submit', (evt: SubmitEvent) => {
-         this.events.emit('contacts-form:submit', evt);
+         this.events.emit('contacts-form-submit-btn:pressing', {
+            'submitEvent': evt,
+            'inputEmail': this.inputEmail,
+            'inputPhone': this.inputPhone
+         });
       })
 
       this.inputEmail = ensureElement(

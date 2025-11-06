@@ -25,7 +25,7 @@ export class BasketMdlContent extends Component<BasketMdlContentData> {
          this.container
       );
       this.basketButton.addEventListener('click', () => {
-         this.events.emit('basket:confirmation');
+         this.events.emit('checkout-button:pressed');
       });
 
       this.basketPrice = ensureElement(

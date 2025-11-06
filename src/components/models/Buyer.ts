@@ -1,4 +1,5 @@
 import { IBuyer, TPayment, IValidationResult } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class Buyer implements IBuyer {
    public payment: TPayment = '';
@@ -6,7 +7,7 @@ export class Buyer implements IBuyer {
    public phone: string = '';
    public address: string = '';
 
-   constructor(buyer?: IBuyer) {
+   constructor(protected events: IEvents, buyer?: IBuyer) {
       if (buyer) {
          this.payment = buyer.payment;
          this.email = buyer.email;
@@ -17,18 +18,22 @@ export class Buyer implements IBuyer {
 
    changePayment(newValue: TPayment): void {
       this.payment = newValue;
+      this.events.emit('buyer-data:changing');
    }
 
    changeEmail(newValue: string): void {
       this.email = newValue;
+      this.events.emit('buyer-data:changing');
    }
 
    changePhone(newValue: string): void {
       this.phone = newValue;
+      this.events.emit('buyer-data:changing');
    }
 
    changeAddress(newValue: string): void {
       this.address = newValue;
+      this.events.emit('buyer-data:changing');
    }
 
    getBuyerData(): IBuyer {
@@ -45,14 +50,15 @@ export class Buyer implements IBuyer {
       this.email = '';
       this.phone = '';
       this.address = '';
+      this.events.emit('buyer-data:changing');
    }
 
    validateData(): IValidationResult {
       const validationResult: IValidationResult = {};
       if (!this.payment) validationResult
-         .payment = 'Укажите способ оплаты';
+         .payment = 'Необходимо выбрать способ оплаты';
       if (!this.email) validationResult
-         .email = 'Укажите email';
+         .email = 'Необходимо указать email';
       if (!this.phone) validationResult
          .phone = 'Укажите номер телефона';
       if (!this.address) validationResult
