@@ -7,7 +7,7 @@ import { IEvents } from "../../base/Events";
 type TPreviewCardBtnState = 'buy' | 'delete' | 'unavailable';
 
 export class PreviewCard extends Card {
-   protected imageElem: HTMLElement;
+   protected imageElem: HTMLImageElement;
    protected categoryElem: HTMLElement;
    protected descriptionElem: HTMLElement;
    protected buttonElem: HTMLElement;
@@ -18,7 +18,7 @@ export class PreviewCard extends Card {
       this.imageElem = ensureElement(
          '.card__image',
          this.container
-      );
+      ) as HTMLImageElement;
       this.categoryElem = ensureElement(
          '.card__category',
          this.container
@@ -43,8 +43,8 @@ export class PreviewCard extends Card {
    }
 
    set image(src: string) {
-      this.imageElem.setAttribute('src', `${CDN_URL}${src}`);
-      this.imageElem.setAttribute('alt', this.titleElem.textContent ?? '');
+      this.setImage(this.imageElem, `${CDN_URL}${src}`,
+         this.titleElem.textContent ?? undefined);
    }
  
    set description(value: string) {

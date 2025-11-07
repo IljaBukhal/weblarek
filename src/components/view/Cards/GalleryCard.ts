@@ -6,7 +6,7 @@ import { Card } from "./Card";
 
 export class GalleryCard extends Card {
    protected categoryElem: HTMLElement;
-   protected imageElem: HTMLElement;
+   protected imageElem: HTMLImageElement;
 
    constructor(container: HTMLElement, events: IEvents) {
       super(container, events);
@@ -24,7 +24,7 @@ export class GalleryCard extends Card {
       this.imageElem = ensureElement(
          '.card__image',
          this.cardElem
-      );
+      ) as HTMLImageElement;
    }
 
    set category(category: TCategory) {
@@ -34,8 +34,8 @@ export class GalleryCard extends Card {
    }
 
    set image(src: string) {
-      this.imageElem.setAttribute('src', `${CDN_URL}${src}`);
-      this.imageElem.setAttribute('alt', this.titleElem.textContent ?? '');
+      this.setImage(this.imageElem, `${CDN_URL}${src}`,
+         this.titleElem.textContent ?? undefined);
    }
 }
 

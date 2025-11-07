@@ -352,7 +352,7 @@ interface CardData extends IProduct {
 
 Поля класса:  
 `protected categoryElem: HTMLElement;` - элемент категории товара.
-`protected imageElem: HTMLElement;` - элемент изображения товара.
+`protected imageElem: HTMLImageElement;;` - элемент изображения товара.
 
 Конструктор класса:
 ```ts
@@ -372,7 +372,7 @@ constructor(container: HTMLElement, events: IEvents) {
    this.imageElem = ensureElement(
       '.card__image',
       this.cardElem
-   );
+   ) as HTMLImageElement;
 }
 ```
 
@@ -385,7 +385,7 @@ constructor(container: HTMLElement, events: IEvents) {
 Отвечает за отображение карточки товара, открытого для предварительного просмотра. Наследует классу Card.
 
 Поля класса:  
-`protected imageElem: HTMLElement;` - элемент изображения.  
+`protected imageElem: HTMLImageElement;` - элемент изображения.  
 `protected categoryElem: HTMLElement;` - элемент категории товара.  
 `protected descriptionElem: HTMLElement;` - элемент описания товара.  
 `protected buttonElem: HTMLElement;` - кнопка превью карты.  
@@ -398,7 +398,7 @@ constructor(container: HTMLElement, events: IEvents) {
    this.imageElem = ensureElement(
       '.card__image',
       this.container
-   );
+   ) as HTMLImageElement;
    this.categoryElem = ensureElement(
       '.card__category',
       this.container
@@ -645,10 +645,9 @@ constructor(container: HTMLElement, events: IEvents) {
    this.cardButton.addEventListener('click', () => {
       this.events.emit('card-button:select');
       this.events.emit('order-form:validation', {
-         'cardButton': this.cardButton,
-         'cashButton': this.cashButton,
-         'inputAddress': this.inputAddress
-         });
+         'paymentMethod': this.getPaymentMethod(),
+         'address': this.inputAddress.value
+      });
    });
 
    this.cashButton = ensureElement(
@@ -658,10 +657,9 @@ constructor(container: HTMLElement, events: IEvents) {
    this.cashButton.addEventListener('click', () => {
       this.events.emit('cash-button:select');
       this.events.emit('order-form:validation', {
-         'cardButton': this.cardButton,
-         'cashButton': this.cashButton,
-         'inputAddress': this.inputAddress
-         });
+         'paymentMethod': this.getPaymentMethod(),
+         'address': this.inputAddress.value
+      });
    });
 
    this.inputAddress = ensureElement(
@@ -670,18 +668,14 @@ constructor(container: HTMLElement, events: IEvents) {
    ) as HTMLInputElement;
    this.inputAddress.addEventListener('input', () => {
       this.events.emit('order-form:validation', {
-         'cardButton': this.cardButton,
-         'cashButton': this.cashButton,
-         'inputAddress': this.inputAddress
+         'paymentMethod': this.getPaymentMethod(),
+         'address': this.inputAddress.value
       });
    });
 
    this.container.addEventListener('submit', (evt) => {
-      this.events.emit('order-form-submit-btn:pressing', {
-         'submitEvent': evt,
-         'cardButton': this.cardButton,
-         'inputAddress': this.inputAddress
-      });
+      evt.preventDefault();
+      this.events.emit('order-form-submit-btn:pressing');
    })
 }
 ```
@@ -689,6 +683,9 @@ constructor(container: HTMLElement, events: IEvents) {
 Сеттеры класса:
 `set paymentMethod(value: TPayment)` - активирует одну из кнопок выбора типа оплаты.  
 `set address(value: string)` - заполняет переданным значением поле ввода адреса.  
+
+Методы класса:
+`private getPaymentMethod(): TPayment` - возвращает строковое представление выбранного способа оплаты.  
 
 #### Класс ContactsForm 
 
@@ -704,11 +701,8 @@ constructor(container: HTMLElement, events: IEvents) {
    super(container, events);
 
    this.container.addEventListener('submit', (evt: SubmitEvent) => {
-      this.events.emit('contacts-form-submit-btn:pressing', {
-         'submitEvent': evt,
-         'inputEmail': this.inputEmail,
-         'inputPhone': this.inputPhone
-      });
+      evt.preventDefault();
+      this.events.emit('contacts-form-submit-btn:pressing');
    })
 
    this.inputEmail = ensureElement(
@@ -717,8 +711,8 @@ constructor(container: HTMLElement, events: IEvents) {
    ) as HTMLInputElement;
    this.inputEmail.addEventListener('input', () => {
       this.events.emit('contacts-form:validation', {
-         'inputEmail': this.inputEmail,
-         'inputPhone': this.inputPhone
+         'email': this.inputEmail.value,
+         'phone': this.inputPhone.value
       });
    })
 
@@ -728,8 +722,8 @@ constructor(container: HTMLElement, events: IEvents) {
    ) as HTMLInputElement;
    this.inputPhone.addEventListener('input', () => {
       this.events.emit('contacts-form:validation', {
-         'inputEmail': this.inputEmail,
-         'inputPhone': this.inputPhone
+         'email': this.inputEmail.value,
+         'phone': this.inputPhone.value
       });
    })
 }
@@ -742,6 +736,7 @@ constructor(container: HTMLElement, events: IEvents) {
 ### События
 
 modal:close - закрывает модальное окно.  
+gallery-card:select - обрабатывает выбор карточки для предварительного просмотра.  
 selected-product:changing - обрабатывает выбор карточки для предварительного просмотра.  
 preview-card-btn:pressing - обрабатывает нажатие на кнопку превью карты.  
 basket-contents:changing - обрабатывает изменение содержимого в модели корзины.  
@@ -763,5 +758,5 @@ contacts-form-submit-btn:pressing - обрабатывает нажатие на
 
 Запрашиваются товары с сервера. Записываются в модель каталога и выводятся в галерее.  
 На документ навешивается событие реагирующее на нажатие кнопки esc и закрывающее модальные окна.  
-Также, для предотвращения дублирования кода, создаётся функция getRenderBasketContent возвращающая рендер окна корзины.  
+Также, для предотвращения дублирования кода, создаётся функция getRenderBasketContent возвращающая рендер окна корзины и функция closeModal закрывающая модальное окно.  
 Остальная часть кода представляет из себя навешивание обработчиков на события, описание в предыдущем разделе.

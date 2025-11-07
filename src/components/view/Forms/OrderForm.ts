@@ -18,10 +18,9 @@ export class OrderForm extends Form {
       this.cardButton.addEventListener('click', () => {
          this.events.emit('card-button:select');
          this.events.emit('order-form:validation', {
-            'cardButton': this.cardButton,
-            'cashButton': this.cashButton,
-            'inputAddress': this.inputAddress
-            });
+            'paymentMethod': this.getPaymentMethod(),
+            'address': this.inputAddress.value
+         });
       });
 
       this.cashButton = ensureElement(
@@ -31,10 +30,9 @@ export class OrderForm extends Form {
       this.cashButton.addEventListener('click', () => {
          this.events.emit('cash-button:select');
          this.events.emit('order-form:validation', {
-            'cardButton': this.cardButton,
-            'cashButton': this.cashButton,
-            'inputAddress': this.inputAddress
-            });
+            'paymentMethod': this.getPaymentMethod(),
+            'address': this.inputAddress.value
+         });
       });
 
       this.inputAddress = ensureElement(
@@ -43,18 +41,14 @@ export class OrderForm extends Form {
       ) as HTMLInputElement;
       this.inputAddress.addEventListener('input', () => {
          this.events.emit('order-form:validation', {
-            'cardButton': this.cardButton,
-            'cashButton': this.cashButton,
-            'inputAddress': this.inputAddress
+            'paymentMethod': this.getPaymentMethod(),
+            'address': this.inputAddress.value
          });
       });
 
       this.container.addEventListener('submit', (evt) => {
-         this.events.emit('order-form-submit-btn:pressing', {
-            'submitEvent': evt,
-            'cardButton': this.cardButton,
-            'inputAddress': this.inputAddress
-         });
+         evt.preventDefault();
+         this.events.emit('order-form-submit-btn:pressing');
       })
    }
 
@@ -72,5 +66,13 @@ export class OrderForm extends Form {
 
    set address(value: string) {
       this.inputAddress.value = value;
+   }
+
+   private getPaymentMethod(): TPayment {
+      return this.cardButton.classList.contains('button_alt-active')
+         ? 'card'
+         :  this.cashButton.classList.contains('button_alt-active')
+            ? 'cash'
+            : '';
    }
 }

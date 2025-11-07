@@ -35,13 +35,22 @@ export class Modal extends Component<ModalData> {
    }
 
    set display(value: boolean) {
-      if (value) this.container.classList
-         .add('modal_active');
-      else this.container.classList
-         .remove('modal_active');
+      if (value) {
+         this.container.classList.add('modal_active');
+         document.addEventListener('keydown', this.escapeHandler);
+      }
+      else {
+         this.container.classList.remove('modal_active');
+         document.removeEventListener('keydown', this.escapeHandler);
+      }
    }
 
    set content(content: HTMLElement) {
       this.contentContainer.replaceChildren(content);
+   }
+
+   private escapeHandler = (evt: KeyboardEvent) => {
+      if (evt.key === 'Escape') 
+         this.events.emit('modal:close');
    }
 }

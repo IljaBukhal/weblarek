@@ -10,11 +10,8 @@ export class ContactsForm extends Form {
       super(container, events);
 
       this.container.addEventListener('submit', (evt: SubmitEvent) => {
-         this.events.emit('contacts-form-submit-btn:pressing', {
-            'submitEvent': evt,
-            'inputEmail': this.inputEmail,
-            'inputPhone': this.inputPhone
-         });
+         evt.preventDefault();
+         this.events.emit('contacts-form-submit-btn:pressing');
       })
 
       this.inputEmail = ensureElement(
@@ -23,8 +20,8 @@ export class ContactsForm extends Form {
       ) as HTMLInputElement;
       this.inputEmail.addEventListener('input', () => {
          this.events.emit('contacts-form:validation', {
-            'inputEmail': this.inputEmail,
-            'inputPhone': this.inputPhone
+            'email': this.inputEmail.value,
+            'phone': this.inputPhone.value
          });
       })
 
@@ -34,8 +31,8 @@ export class ContactsForm extends Form {
       ) as HTMLInputElement;
       this.inputPhone.addEventListener('input', () => {
          this.events.emit('contacts-form:validation', {
-            'inputEmail': this.inputEmail,
-            'inputPhone': this.inputPhone
+            'email': this.inputEmail.value,
+            'phone': this.inputPhone.value
          });
       })
    }

@@ -10,7 +10,7 @@ import { SuccessMdlContent } from './components/view/Modals/SuccessMdlContent';
 import { Header } from './components/view/Header';
 import { OrderForm } from './components/view/Forms/OrderForm';
 import { ContactsForm } from './components/view/Forms/ContactsForm';
-import { IApi, IProduct } from './types';
+import { IApi, IProduct, TPayment } from './types';
 import { Api } from './components/base/Api';
 import { API_URL } from './utils/constants';
 import { Connection } from './components/Connection';
@@ -48,6 +48,35 @@ const orderFormContent = new OrderForm(orderFormTemplate, events);
 const contactsFormContent = new ContactsForm(contactsFormTemplate, events);
 const successContent = new SuccessMdlContent(successTemplate, events);
 
+function closeModal(): void {
+	modal.render({ 'display': false });
+}
+
+function getRenderBasketContent(): HTMLElement {
+	let cardCounter: number = 1;
+	basketContent.setButtonSate(
+		basket.getNumberProductsInBasket()
+		? 'active'
+		: 'inactive'
+	);
+	const selectedProducts: HTMLElement[] = basket
+		.getSelectedProducts().map((product) => {
+			return new BasketCard(cloneTemplate('#card-basket'), events)
+			.render({
+				'index': cardCounter++,
+				'title': product.title,
+				'price': product.price,
+				'id': product.id
+			})
+		});
+
+	const basketContentRender = basketContent.render({
+		'selectedProducts': selectedProducts,
+		'price': basket.getTotalPrice()
+	});
+	return basketContentRender;
+}
+
 header.render({
 	'counter': basket.getNumberProductsInBasket()
 });
@@ -69,11 +98,6 @@ connections.getProducts()
 					}))
 		});
 	});
-
-document.addEventListener('keydown', (evt) => { 
-	if (evt.key === 'Escape') 
-		events.emit('modal:close'); 
-});
 
 events.on('modal:close', () => {
 	modal.render({ 'display': false });
@@ -124,33 +148,8 @@ events.on('preview-card-btn:pressing', () => {
 	else
 		basket.addProductToBasket(selectedCard);
 
-	events.emit('modal:close');
+	closeModal();
 });
-
-function getRenderBasketContent(): HTMLElement {
-	let cardCounter: number = 1;
-	basketContent.setButtonSate(
-		basket.getNumberProductsInBasket()
-		? 'active'
-		: 'inactive'
-	);
-	const selectedProducts: HTMLElement[] = basket
-		.getSelectedProducts().map((product) => {
-			return new BasketCard(cloneTemplate('#card-basket'), events)
-			.render({
-				'index': cardCounter++,
-				'title': product.title,
-				'price': product.price,
-				'id': product.id
-			})
-		});
-
-	const basketContentRender = basketContent.render({
-		'selectedProducts': selectedProducts,
-		'price': basket.getTotalPrice()
-	});
-	return basketContentRender;
-}
 
 events.on('basket-contents:changing', () => {
 	header.render({
@@ -182,33 +181,30 @@ events.on('checkout-button:pressed', () => {
 	modal.render({
 		'content': orderFormContent.render({
 			'paymentMethod': buyer.payment,
-			'address': buyer.address,
-			'errorMessage': ''
+			'address': buyer.address
 		})
 	});
 });
 
 events.on('order-form:validation', (evt: {
-	cashButton: HTMLElement,
-	cardButton: HTMLElement,
-	inputAddress: HTMLInputElement
+	paymentMethod: TPayment,
+	address: string
 }) => {
-	const paymentMsg: string | null = !evt.cardButton
-		.classList.contains('button_alt-active')
-		&& !evt.cashButton.classList.contains('button_alt-active')
-		? 'Необходимо выбрать способ оплаты' : null;
-	const addressMsg: string | null = evt.inputAddress.value === ''
-		? 'Укажите свой адрес' : null;
+	buyer.changePayment(evt.paymentMethod);
+	buyer.changeAddress(evt.address);
 
-	if (paymentMsg === null && addressMsg === null) {
+	const paymentMsg: string = buyer.validateData().payment ?? '';
+	const addressMsg: string = buyer.validateData().address ?? '';
+
+	if (paymentMsg === '' && addressMsg === '') {
 		orderFormContent.setSubmitButtonSate('active');
 	} else {
 		orderFormContent.setSubmitButtonSate('inactive');
 	}
-	const sep: string = paymentMsg !== null && addressMsg !== null
+	const sep: string = paymentMsg !== '' && addressMsg !== ''
 		? ', ' : '' ;
 
-	orderFormContent.errorMessage = `${paymentMsg ?? ''}${sep}${addressMsg ?? ''}`;
+	orderFormContent.errorMessage = `${paymentMsg}${sep}${addressMsg}`;
 });
 
 events.on('card-button:select', () => {
@@ -219,21 +215,7 @@ events.on('cash-button:select', () => {
 	orderFormContent.paymentMethod = 'cash';
 });
 
-events.on('order-form-submit-btn:pressing', (evt: {
-	'submitEvent': SubmitEvent,
-	'cardButton': HTMLElement,
-	'inputAddress': HTMLInputElement
-}) => {
-	evt.submitEvent.preventDefault();
-
-	if (evt.cardButton.classList.contains('button_alt-active')) {
-		buyer.changePayment('card');
-	} else {
-		buyer.changePayment('cash');
-	}
-
-	buyer.changeAddress(evt.inputAddress.value);
-
+events.on('order-form-submit-btn:pressing', () => {
 	if (buyer.email !== '' && buyer.phone !== '') {
 		contactsFormContent.setSubmitButtonSate('active');
 	}
@@ -241,42 +223,33 @@ events.on('order-form-submit-btn:pressing', (evt: {
 	modal.render({
 		'content': contactsFormContent.render({
 			'email': buyer.email,
-			'phone': buyer.phone,
-			'errorMessage': ''
+			'phone': buyer.phone
 		})
 	})
 })
 
 events.on('contacts-form:validation', (evt: {
-	inputEmail: HTMLInputElement,
-	inputPhone: HTMLInputElement
+	'email': string,
+	'phone': string
 }) => {
-	const emailMsg: string | null = evt.inputEmail.value === ''
-		? 'Укажите свой email' : null;
-	const phoneMsg: string | null = evt.inputPhone.value === ''
-		? 'Укажите свой номер телефона' : null;
+	buyer.changeEmail(evt.email);
+	buyer.changePhone(evt.phone);
 
-	if (emailMsg === null && phoneMsg === null) {
+	const emailMsg: string = buyer.validateData().email ?? '';
+	const phoneMsg: string = buyer.validateData().phone ?? '';
+
+	if (emailMsg === '' && phoneMsg === '') {
 		contactsFormContent.setSubmitButtonSate('active');
 	} else {
 		contactsFormContent.setSubmitButtonSate('inactive');
 	}
-	const sep: string = emailMsg !== null && phoneMsg !== null
+	const sep: string = emailMsg !== '' && phoneMsg !== ''
 		? ', ' : '' ;
 
-	contactsFormContent.errorMessage = `${emailMsg ?? ''}${sep}${phoneMsg ?? ''}`;
+	contactsFormContent.errorMessage = `${emailMsg}${sep}${phoneMsg}`;
 });
 
-events.on('contacts-form-submit-btn:pressing', (evt: {
-	'submitEvent': SubmitEvent,
-	'inputEmail': HTMLInputElement,
-	'inputPhone': HTMLInputElement
-}) => {
-	evt.submitEvent.preventDefault();
-
-	buyer.changeEmail(evt.inputEmail.value);
-	buyer.changePhone(evt.inputPhone.value);
-
+events.on('contacts-form-submit-btn:pressing', () => {
 	const orderItems: string[] = basket.getSelectedProducts()
 		.map((product) => product.id);
 
